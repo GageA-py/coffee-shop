@@ -1,5 +1,16 @@
 {% extends 'base.html' %}
 {% block content%}
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="mb-4">
+      {% for category, message in messages %}
+        <div class="p-4 mb-4 text-sm text-{{ 'green-800' if category == 'success' else 'red-800' }} rounded-lg bg-{{ 'green-100' if category == 'success' else 'red-100' }} dark:bg-{{ 'green-200' if category == 'success' else 'red-200' }} dark:text-{{ 'green-900' if category == 'success' else 'red-900' }}" role="alert">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
 
 <div class="m-0 h-screen bg-cover bg-center" style="background-image: url('static/images/coffee_home.jpg');">
   <div class="flex items-center justify-center h-full">

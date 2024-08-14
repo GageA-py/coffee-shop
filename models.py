@@ -2,7 +2,7 @@ from flask_login import UserMixin
 from app import db
 from datetime import datetime
 
-# Create a model
+# Create a user model
 class Users(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -19,3 +19,13 @@ class Users(db.Model, UserMixin):
     # create string
     def __repr__(self):
         return '<Name %r>' % self.name
+
+# Create product model
+class Products(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(125), nullable=False)
+    price = db.Column(db.Float)
+    image = db.Column(db.String(125))
+
+
+    

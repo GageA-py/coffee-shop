@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import Users
+from models import Users, Products
 from forms import RegistrationForm, LoginForm
 from flask_wtf import CSRFProtect
 
@@ -36,6 +36,13 @@ def load_user(user_id):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/coffee')
+def show_products():
+    products = Products.query.all()
+    print("Products:", products)
+    return render_template('coffee_shop.html', products=products)
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():

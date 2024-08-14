@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="mb-4">
+                {% for category, message in messages %}
+                    <div class="p-4 mb-4 text-sm text-{{ 'green-800' if category == 'success' else 'red-800' }} rounded-lg bg-{{ 'green-100' if category == 'success' else 'red-100' }} dark:bg-{{ 'green-200' if category == 'success' else 'red-200' }} dark:text-{{ 'green-900' if category == 'success' else 'red-900' }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Product Grid -->
+    <div class="container mx-auto px-4 py-8 translate-y-10">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for product in products %}
+            <div class="bg-white shadow-lg rounded-lg overflow-hidden w-full h-64 flex flex-col items-center justify-between">
+                {% if product.image %}
+                    <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}" class="w-32 h-32 ">
+                {% else %}
+                    <div class="w-full h-32 flex items-center justify-center bg-gray-200">Coming Soon...</div>
+                {% endif %}
+                <div class="p-4 w-full text-center">
+                    <h2 class="text-xl font-semibold mb-2">{{ product.name }}</h2>
+                    {% if product.price %}
+                    <div class="flex items-center justify-center">
+                        <span class="text-lg font-bold text-orange-900">${{ product.price }}</span>
+                    </div>
+                    {% else %}
+                    Price Unavailable...
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,23 +1,12 @@
 {% extends 'base.html' %}
 {% block content%}
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <div class="mb-4">
-      {% for category, message in messages %}
-        <div class="p-4 mb-4 text-sm text-{{ 'green-800' if category == 'success' else 'red-800' }} rounded-lg bg-{{ 'green-100' if category == 'success' else 'red-100' }} dark:bg-{{ 'green-200' if category == 'success' else 'red-200' }} dark:text-{{ 'green-900' if category == 'success' else 'red-900' }}" role="alert">
-          {{ message }}
-        </div>
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
 
 <div class="m-0 h-screen bg-cover bg-center" style="background-image: url('static/images/coffee_home.jpg');">
   <div class="flex items-center justify-center h-full">
     <div class="text-center text-white">
-        <h1 class=" font-montserrat text-7xl text-black font-bold mb-6 ">World's Best Coffee Beans</h1>
+        <h1 class=" font-montserrat text-7xl text-black font-bold mb-6 ">World's Best Coffee Beans.</h1>
         <div class="space-x-4">
-            <a href="/coffee"><button class="text-white font-bold bg-orange-900 hover:bg-orange-600 hover:text-black focus:ring-4 focus:outline-none focus:ring-blue-300 font-large rounded-lg text-sm px-2 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 w-64">Shop Coffee</button></a>
+            <a href="/coffee"><button class="text-white font-bold bg-orange-900 hover:bg-orange-600 hover:text-black focus:ring-4 focus:outline-none focus:ring-blue-300 font-large rounded-lg text-sm px-2 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 h-10 w-80">Shop Coffee</button></a>
         </div>
     </div>
 </div>

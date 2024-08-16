@@ -33,6 +33,10 @@
                     Price Unavailable...
                     {% endif %}
                 </div>
+                <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <button type="submit">Add to Cart</button>
+                </form>
             </div>
             {% endfor %}
         </div>

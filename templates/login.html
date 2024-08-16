@@ -3,22 +3,12 @@
 
 
 {% block content %}
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <div class="mb-4">
-      {% for category, message in messages %}
-        <div class="p-4 mb-4 text-sm text-{{ 'green-800' if category == 'success' else 'red-800' }} rounded-lg bg-{{ 'green-100' if category == 'success' else 'red-100' }} dark:bg-{{ 'green-200' if category == 'success' else 'red-200' }} dark:text-{{ 'green-900' if category == 'success' else 'red-900' }}" role="alert">
-          {{ message }}
-        </div>
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
 
-<div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 font-montserrat translate-y-20">
+
+<div class="flex min-h-full flex-col justify-center px-6 py-5 lg:px-8 font-montserrat">
     <div class="sm:mx-auto sm:w-full sm:max-w-sm">
      
-      <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Sign in to your account</h2>
+      <h2 class="mt text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Sign in to your account</h2>
     </div>
   
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
@@ -50,7 +40,7 @@
   
       <p class="mt-10 text-center text-sm text-gray-500">
         Not a member?
-        <a href="#" class="font-semibold leading-6 text-black hover:underline">Register Here.</a>
+        <a href="/register" class="font-semibold leading-6 text-black hover:underline">Register Here.</a>
       </p>
     </div>
   </div>

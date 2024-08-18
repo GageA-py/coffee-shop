@@ -17,5 +17,6 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
+# Checkout form
 class CheckoutForm(FlaskForm):
-    submit = SubmitField('Proceed to Payment')
+    submit = SubmitField('Proceed To Checkout')

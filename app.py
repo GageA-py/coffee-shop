@@ -116,7 +116,6 @@ def view_cart():
     return render_template('cart.html', cart_items=cart_items, total=total, checkout_form=checkout_form) 
 
 
-    
 
 @app.route('/remove-from-cart/<int:product_id>', methods=['POST'])
 def remove_from_cart(product_id):

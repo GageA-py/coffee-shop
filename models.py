@@ -48,4 +48,5 @@ class CartItem(db.Model):
         return f'<CartItem {self.product.name} (x{self.quantity})>'
 
 
+
     

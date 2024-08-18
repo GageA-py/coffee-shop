@@ -6,9 +6,10 @@ from datetime import datetime
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import Users, Products, CartItem
-from forms import RegistrationForm, LoginForm
+from forms import RegistrationForm, LoginForm, CheckoutForm
 from flask_wtf import CSRFProtect
 from flask_wtf.csrf import generate_csrf
+import stripe
 
 load_dotenv()
 
@@ -19,6 +20,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 csrf = CSRFProtect(app)
+stripe.api_key = os.getenv('STRIPE_API_KEY')
 
 # Initialize the db and migrate objects with the app
 db.init_app(app)
@@ -45,6 +47,8 @@ def show_products():
     products = Products.query.all()
     print("Products:", products)
     return render_template('coffee_shop.html', products=products, csrf_token=csrf_token)
+
+@app.route('/send-email')
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -78,64 +82,88 @@ def login():
 
     return render_template('login.html', form=form)
 
-@app.route('/add_to_cart/<int:product_id>', methods=['POST'])
+def calculate_total_price():
+    cart_items = CartItem.query.all()
+    total = round(sum(item.quantity * item.product.price for item in cart_items), 2)
+    return total
+
+@app.route('/add-to-cart/<int:product_id>', methods=['POST'])
 @login_required
 def add_to_cart(product_id):
-    # Check if item is already in cart
-    cart_item = CartItem.query.filter_by(user_id=current_user.id, product_id=product_id).first()
-
-    if cart_item:
-        cart_item.quantity += 1
-    else:
-        cart_item = CartItem(user_id=current_user.id, product_id=product_id)
-        db.session.add(cart_item)
+    quantity = request.form.get('quantity', 1, type=int)  # Default to 1 if not provided
+    if quantity <= 0:
+        return redirect(url_for('show_products', error='Invalid quantity'))
     
-    db.session.commit()
-    return redirect(url_for('show_products'))
+    # Find an existing cart item or create a new one
+    cart_item = CartItem.query.filter_by(product_id=product_id, user_id=current_user.id).first()
+    if cart_item:
+        cart_item.quantity += quantity  # Update the quantity
+    else:
+        cart_item = CartItem(product_id=product_id, quantity=quantity, user_id=current_user.id)
+        db.session.add(cart_item)  # Add new item to the cart
+    
+    db.session.commit()  
 
+    return redirect(url_for('show_products'))  # Redirect back to the products page
 
 
 @app.route('/cart')
 @login_required
 def view_cart():
-    csrf_token = generate_csrf()
     cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
-    total = sum(item.product.price * item.quantity for item in cart_items)
-    return render_template('cart.html', cart_items=cart_items, total=total)
+    total = round(sum(item.quantity * item.product.price for item in cart_items), 2)
+    checkout_form = CheckoutForm()
+    return render_template('cart.html', cart_items=cart_items, total=total, checkout_form=checkout_form) 
 
-@app.route('/update_cart/<int:product_id>', methods=['POST'])
-def update_cart(product_id):
-    data = request.get_json()
-    quantity = data.get('quantity')
-    # Update the cart with the new quantity
-    update_cart_item(product_id, quantity)
-
-    # Calculate the new total price
-    total_price = calculate_total_price()  # Implement this function based on your logic
-
-    return jsonify({'success': True, 'total_price': total_price})
 
     
 
-@app.route('/remove_from_cart/<int:product_id>', methods=['POST'])
-@login_required
+@app.route('/remove-from-cart/<int:product_id>', methods=['POST'])
 def remove_from_cart(product_id):
-    csrf_token = generate_csrf()
-    # Check if item is already in cart
-    cart_item = CartItem.query.filter_by(user_id=current_user.id, product_id=product_id).first()
-
-    # Check if cart item exists and if there's more than one
-    # decrement if more than 1
-    if cart_item:
-        if cart_item.quantity > 1:
-            cart_item.quantity -= 1
-        else:
-            # If 1 or less items delete from db
+    if request.method == 'POST':
+        cart_item = CartItem.query.filter_by(product_id=product_id, user_id=current_user.id).first()
+        if cart_item.quantity <= 1:
             db.session.delete(cart_item)
-    
-    db.session.commit()
+        
+        else:
+            cart_item.quantity -= 1
+            calculate_total_price()
+        db.session.commit()
     return redirect(url_for('view_cart'))
 
+@app.route('/checkout', methods=['POST'])
+def create_checkout_session():
+    cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
+    line_items = []
+    for item in cart_items:
+        line_items.append({
+            'price_data': {
+                'currency': 'usd',  # or 'cad' if using Canadian dollars
+                'product_data': {
+                    'name': item.product.name,
+                },
+                'unit_amount': int(item.product.price * 100)  # Convert dollars to cents
+            },
+            'quantity': item.quantity,
+        })
+    session = stripe.checkout.Session.create(
+        payment_method_types=['card'],
+        line_items=line_items,
+        mode='payment',
+        success_url='http://127.0.0.1:5000/success',
+        cancel_url='http://127.0.0.1:5000/cancel'
+    )
+    return redirect(session.url, code=303)
+
+
+@app.route('/success')
+def success():
+    return "Payment Successful! Thanks! :)"
+    
+
+@app.route('/cancelled')
+def cancel():
+    return "Payment Cancelled. :("
 
 @app.route('/logout', methods=['GET', 'POST'])
 @login_required

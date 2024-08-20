@@ -4,22 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Coffee Shop{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dist/css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='dist/css/output.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
-    
 </head>
 <body class="font-montserrat">
-    <nav class="bg-white dark:bg-gray-900 fixed w-full z-20 top-0 start-0 dark:border-gray-600 font-montserrat">
-        <div class="max-w-screen-xl flex items-center justify-between mx-auto p-3 ">
+    <nav class="bg-white dark:bg-gray-900 fixed w-full z-20 top-0 left-0 sm: dark:border-gray-600">
+        <div class="max-w-screen-xl flex items-center justify-between mx-auto px-4 py-2 md:px-6 md:py-8">
             <!-- Left side: Logo and Store Name -->
-            <a href="/" class="flex items-center space-x-3 rtl:space-x-reverse">
-                <img src="{{ url_for('static', filename='images/coffee.png') }}" alt="" class="object-scale-down h-20 w-20 translate-y-[-13px]">
-                <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Coffee Store</span>
-            </a>
-            
-            <!-- Center: Navigation Links -->
-            <div class="hidden md:flex translate-x-5">
+            <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                <a href="/" class="flex items-center space-x-3 rtl:space-x-reverse">
+                    <img src="{{ url_for('static', filename='images/coffee.png') }}" 
+                         alt="Coffee Store Logo" 
+                         class="object-scale-down -mt-3 h-11 w-11 sm:h-15 sm:w-15 md:h-20 md:w-20 md:-mt-7">
+                    <div class="flex flex-col space-y-1">
+                        <span class="text-xs sm:text-sm md:text-lg lg:text-xl font-semibold whitespace-nowrap dark:text-white">Coffee Store</span>
+                        {% if current_user.is_authenticated %}
+                            <span class="text-xs sm:text-sm md:hidden text-gray-800">Welcome, &nbsp; {{ current_user.first_name }}</span>
+                        {% endif %}
+                    </div>
+                </a>
+            </div>
+    
+            <!-- Center: Navigation Links (Aligned to the left) -->
+            <div class="hidden md:flex flex-grow">
                 <ul class="flex space-x-4">
                     <li>
                         <a href="/" class="block py-2 px-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-orange-700 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white" aria-current="page">Home</a>
@@ -32,18 +40,24 @@
                     </li>
                 </ul>
             </div>
-            
-            <!-- Right side: User Info and Buttons -->
-            <div class="inline-flex items-center ml-auto space-x-2">
+    
+            <!-- Right Side Buttons -->
+            <div class="flex items-center space-x-2">
                 {% if current_user.is_authenticated %}
                     <div class="flex items-center space-x-3">
-                        <span class="text-gray-800">Welcome, &nbsp; {{ current_user.first_name }}</span>
-                        <a href="/logout"><button type="button" class="text-white mr-0.5 bg-orange-900 hover:bg-orange-800 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 w-24">Logout</button></a>
+                        <span class="text-xs sm:text-sm md:text-base text-gray-800 hidden md:block">Welcome, &nbsp; {{ current_user.first_name }}</span>
+                        <a href="/logout">
+                            <button type="button" class="text-white bg-orange-900 hover:bg-orange-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg md:h-9 sm:h-8 text-xs sm:text-sm px-4 py-2  dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Logout</button>
+                        </a>
                     </div>
                 {% else %}
-                    <a href="/login"><button type="button" class="text-black bg-transparent border border-orange-900 hover:bg-orange-900 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 w-24">Login</button></a>
+                    <a href="/login">
+                        <button type="button" class="text-black bg-transparent border border-orange-900 hover:bg-orange-900 hover:text-white focus:ring-4 focus:outline-none md:h-9 h-8 focus:ring-blue-300 font-medium rounded-lg text-xs sm:text-sm px-4 py-1.5 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Login</button>
+                    </a>
                 {% endif %}
-                <a href="/cart"><button type="button" class="text-white bg-orange-900 hover:bg-orange-800 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Cart</button></a>
+                <a href="/cart">
+                    <button type="button" class="text-white bg-orange-900 hover:bg-orange-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xs sm:text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Cart</button>
+                </a>
                 <button data-collapse-toggle="navbar-sticky" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-sticky" aria-expanded="false">
                     <span class="sr-only">Open main menu</span>
                     <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
@@ -53,19 +67,49 @@
             </div>
         </div>
 
-        <!-- Mobile menu -->
-        <div class="md:hidden" id="navbar-sticky">
-            <ul class="flex flex-col p-4 space-y-2 font-medium border border-gray-100 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
-                <li><a href="/" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Home</a></li>
-                <li><a href="/coffee" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Shop</a></li>
-                <li><a href="#" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Contact</a></li>
+        <!-- Dropdown Menu -->
+        <div id="navbar-sticky" class="hidden md:hidden bg-white dark:bg-gray-900 w-full mt-2 space-y-2">
+            <ul class="flex flex-col items-start space-y-2">
+                <li class="w-full">
+                    <a href="/" class="block w-full py-2 px-4 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Home</a>
+                </li>
+                <li class="w-full">
+                    <a href="/coffee" class="block w-full py-2 px-4 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Shop</a>
+                </li>
+                <li class="w-full">
+                    <a href="#" class="block w-full py-2 px-4 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Contact</a>
+                </li>
+                {% if current_user.is_authenticated %}
+                <li class="w-full">
+                    <span class="block w-full py-2 px-4 text-gray-900 dark:text-white">Welcome, &nbsp; {{ current_user.first_name }}</span>
+                </li>
+                <li class="w-full">
+                    <a href="/logout" class="block w-full py-2 px-4 text-white bg-orange-900 hover:bg-orange-800">Logout</a>
+                </li>
+                {% else %}
+                <li class="w-full">
+                    <a href="/login" class="block w-full py-2 px-4 text-black bg-transparent  hover:bg-gray-100">Login</a>
+                </li>
+                {% endif %}
+                <li class="w-full">
+                    <a href="/cart" class="block w-full py-2 px-4 text-black hover:bg-gray-100">Cart</a>
+                </li>
             </ul>
         </div>
     </nav>
 
-    <div class="content" style="margin-top: 80px; color: black;">
+    <div class="content mt-16" style="color: black;">
         {% block content %}{% endblock %}
     </div>
-    <script src="{{ url_for('static', filename='js/increment_cart.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.querySelector('[data-collapse-toggle]')
+            const menu = document.getElementById('navbar-sticky')
+            menuToggle.addEventListener('click', function() {
+                menu.classList.toggle('hidden')
+            });
+            });
+    
+    </script>
 </body>
 </html>

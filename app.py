@@ -9,7 +9,9 @@ from models import Users, Products, CartItem
 from forms import RegistrationForm, LoginForm, CheckoutForm
 from flask_wtf import CSRFProtect
 from flask_wtf.csrf import generate_csrf
+from flask_mail import Mail, Message
 import stripe
+import random
 
 load_dotenv()
 
@@ -19,8 +21,17 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+
 csrf = CSRFProtect(app)
 stripe.api_key = os.getenv('STRIPE_API_KEY')
+mail = Mail(app)
 
 # Initialize the db and migrate objects with the app
 db.init_app(app)
@@ -90,7 +101,7 @@ def calculate_total_price():
 @app.route('/add-to-cart/<int:product_id>', methods=['POST'])
 @login_required
 def add_to_cart(product_id):
-    quantity = request.form.get('quantity', 1, type=int)  # Default to 1 if not provided
+    quantity = request.form.get('quantity', 1, type=int)  
     if quantity <= 0:
         return redirect(url_for('show_products', error='Invalid quantity'))
     
@@ -137,13 +148,13 @@ def create_checkout_session():
     for item in cart_items:
         line_items.append({
             'price_data': {
-                'currency': 'usd',  # or 'cad' if using Canadian dollars
+                'currency': 'cad',   
                 'product_data': {
                     'name': item.product.name,
                 },
                 'unit_amount': int(item.product.price * 100)  # Convert dollars to cents
             },
-            'quantity': item.quantity,
+            'quantity': item.quantity
         })
     session = stripe.checkout.Session.create(
         payment_method_types=['card'],
@@ -157,6 +168,22 @@ def create_checkout_session():
 
 @app.route('/success')
 def success():
+    # Query database for cart items
+    cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
+    total = round(sum(item.quantity * item.product.price for item in cart_items), 2)
+    # render email with cart items, user info, total
+    html_content = render_template('email_order_template.html', 
+    user_name=current_user.first_name,
+    order_items=cart_items, total=total)
+
+    # Create order email 
+    msg = Message('Order Confirmation',
+    sender=os.getenv('MAIL_DEFAULT_SENDER'), 
+    recipients=[current_user.email])
+    msg.html = html_content
+
+    # Send email message 
+    mail.send(msg)
     return "Payment Successful! Thanks! :)"
     
 

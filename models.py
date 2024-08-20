@@ -8,7 +8,7 @@ class Users(db.Model, UserMixin):
     first_name = db.Column(db.String(100), nullable=False)
     last_name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), nullable=False, unique=True)
-    password = db.Column(db.String(255), nullable=False)  
+    password = db.Column(db.String(255), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
 
     def set_password(self, password):
@@ -27,6 +27,7 @@ class Products(db.Model):
     name = db.Column(db.String(125), nullable=False)
     price = db.Column(db.Float)
     image = db.Column(db.String(125))
+    
 
 
 # Create shopping cart model
@@ -48,4 +49,4 @@ class CartItem(db.Model):
         return f'<CartItem {self.product.name} (x{self.quantity})>'
 
 
-    
+

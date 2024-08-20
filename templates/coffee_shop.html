@@ -1,18 +1,7 @@
 {% extends 'base.html' %}
 
-{% block content %}
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="mb-4">
-                {% for category, message in messages %}
-                    <div class="p-4 mb-4 text-sm text-{{ 'green-800' if category == 'success' else 'red-800' }} rounded-lg bg-{{ 'green-100' if category == 'success' else 'red-100' }} dark:bg-{{ 'green-200' if category == 'success' else 'red-200' }} dark:text-{{ 'green-900' if category == 'success' else 'red-900' }}" role="alert">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-    {% endwith %}
 
+{% block content %}
     <!-- Product Grid -->
     <div class="container mx-auto px-4 py-8 translate-y-10">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -29,14 +18,14 @@
                     <div class="flex items-center justify-center">
                         <span class="text-lg font-bold text-orange-900">${{ product.price }}</span>
                     </div>
+                    <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <button type="submit" class="mb-5">Add to Cart</button>
+                    </form>
                     {% else %}
-                    Price Unavailable...
+                    <div>Price Unavailable...</div>
                     {% endif %}
                 </div>
-                <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="post">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                    <button type="submit">Add to Cart</button>
-                </form>
             </div>
             {% endfor %}
         </div>
